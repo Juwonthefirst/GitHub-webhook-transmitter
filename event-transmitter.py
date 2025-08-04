@@ -20,7 +20,7 @@ async def github_webhook():
 async def send_github_push_event():
 	while True:
 		#print("help starting github push event")
-		data = await queue.get()
+		#data = await queue.get()
 		print("event sent")
 		yield f"{data} \n\n"
 	
