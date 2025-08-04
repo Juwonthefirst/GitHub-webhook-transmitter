@@ -12,7 +12,7 @@ async def home():
 
 
 @app.post("/github/push/")
-async def github_webhook():
+async def github_webhook(): 
 	await queue.put("push event")
 	return {"status": "ok"}
 	
@@ -23,5 +23,6 @@ async def send_github_push_event():
 	
 @app.get("/event/github/")
 async def github_push_event():
+	print("user connected")
 	return StreamingResponse(send_github_push_event(), media_type = "text/event-stream")
 	
