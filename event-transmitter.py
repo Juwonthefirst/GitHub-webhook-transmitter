@@ -19,6 +19,7 @@ async def github_webhook():
 async def send_github_push_event():
 	while True:
 		data = await queue.get()
+		print(data)
 		yield f"{data} \n\n"
 	
 @app.get("/event/github/")
