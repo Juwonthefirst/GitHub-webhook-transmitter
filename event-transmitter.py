@@ -1,0 +1,21 @@
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+import uvicorn , asyncio
+
+app = FastAPI()
+queue = asyncio.Queue()
+
+@app.post("/github/push/")
+async def github_webhook():
+	await queue.put("push event")
+	return {"status": "ok"}
+	
+async def send_github_push_event():
+	while True:
+		data = await queue.get()
+		yield f"{data} \n\n"
+	
+@app.get("/event/github/")
+async def github_push_event():
+	return StreamingResponse(send_github_push_event(), media_type = "text/")
+	
