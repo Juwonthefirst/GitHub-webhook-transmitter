@@ -14,10 +14,12 @@ async def home():
 @app.post("/github/push/")
 async def github_webhook(): 
 	await queue.put("push event")
+	print(await queue.get())
 	return {"status": "ok"}
 	
 async def send_github_push_event():
 	while True:
+		print("help starting github push event")
 		data = await queue.get()
 		print(data)
 		yield f"{data} \n\n"
