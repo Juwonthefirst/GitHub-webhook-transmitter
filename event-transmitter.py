@@ -5,6 +5,7 @@ import asyncio
 app = FastAPI()
 queue = asyncio.Queue()
 
+@app.head("/")
 @app.get("/")
 async def home():
 	return {"status": "hello"}
