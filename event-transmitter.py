@@ -12,14 +12,21 @@ class SocketManager:
 		self.active_connections.append(websocket)
 		
 	def disconnect(self, websocket: WebSocket):
+		
 		self.active_connections.remove(websocket)
 		
 	async def broadcast(self, message: str):
+		
+		disconnected_users: list[WebSocket] = []
+		
 		for websocket in self.active_connections:
 			try:
 				await websocket.send_text(message)
 			except WebSocketDisconnect:
-				self.disconnect(websocket)
+				disconnected_users.append(websocket)
+				
+		for user in disconnected_users:
+			self.disconnect(user)
 			
 manager = SocketManager()
 
@@ -38,4 +45,8 @@ async def github_webhook():
 @app.websocket("/event/github/")
 async def github_push_event(websocket:WebSocket):
 	await manager.connect(websocket)
-	print("connected")
+	try:
+		while True:
+			await websocket.receive_text()
+	except WebSocketDisconnect:
+		manager.disconnect(websocket)
