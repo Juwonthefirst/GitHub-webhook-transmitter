@@ -23,5 +23,5 @@ async def send_github_push_event():
 	
 @app.get("/event/github/")
 async def github_push_event():
-	return StreamingResponse(send_github_push_event(), media_type = "text/")
+	return StreamingResponse(send_github_push_event(), media_type = "text/event-stream")
 	
