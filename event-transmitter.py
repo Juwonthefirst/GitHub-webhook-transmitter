@@ -1,9 +1,28 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 import asyncio
 
 app = FastAPI()
-queue: asyncio.Queue = asyncio.Queue()
+class SocketManager: 
+	def __init__(self):
+		self.active_connections: list[WebSocket] = []
+		
+	async def connect(self, websocket:WebSocket): 
+		await websocket.accept()
+		self.active_connections.append(websocket)
+		
+	def disconnect(self, websocket: WebSocket):
+		self.active_connections.remove(websocket)
+		
+	async def broadcast(self, message: str):
+		for websocket in self.active_connections:
+			try:
+				await websocket.send_text(message)
+			except WebSocketDisconnect:
+				self.disconnect(websocket)
+			
+manager = SocketManager()
+
 
 @app.head("/")
 @app.get("/")
@@ -13,18 +32,10 @@ async def home():
 
 @app.post("/github/push/")
 async def github_webhook(): 
-	await queue.put("push event")
-	#print(await queue.get())
+	await manager.broadcast("push")
 	return {"status": "ok"}
 	
-async def send_github_push_event():
-	while True:
-		#print("help starting github push event")
-		#data = await queue.get()
-		yield f" event sent \n\n"
-	
-@app.get("/event/github/")
-async def github_push_event():
-	print("user connected")
-	return StreamingResponse(send_github_push_event(), media_type = "text/event-stream")
-	
+@app.websocket("/event/github/")
+async def github_push_event(websocket:WebSocket):
+	manager.connect(websocket)
+	print("connected")
