@@ -37,5 +37,5 @@ async def github_webhook():
 	
 @app.websocket("/event/github/")
 async def github_push_event(websocket:WebSocket):
-	manager.connect(websocket)
+	await manager.connect(websocket)
 	print("connected")
