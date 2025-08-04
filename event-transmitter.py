@@ -1,9 +1,14 @@
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
-import uvicorn , asyncio
+import asyncio
 
 app = FastAPI()
 queue = asyncio.Queue()
+
+@app.get("/")
+async def home():
+	return {"status": "hello"}
+
 
 @app.post("/github/push/")
 async def github_webhook():
