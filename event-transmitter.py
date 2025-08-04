@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 import asyncio
 
 app = FastAPI()
-queue = asyncio.Queue()
+queue: asyncio.Queue = asyncio.Queue()
 
 @app.head("/")
 @app.get("/")
@@ -14,12 +14,12 @@ async def home():
 @app.post("/github/push/")
 async def github_webhook(): 
 	await queue.put("push event")
-	print(await queue.get())
+	#print(await queue.get())
 	return {"status": "ok"}
 	
 async def send_github_push_event():
 	while True:
-		print("help starting github push event")
+		#print("help starting github push event")
 		data = await queue.get()
 		print(data)
 		yield f"{data} \n\n"
